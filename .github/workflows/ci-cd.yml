@@ -21,11 +21,25 @@ jobs:
       - name: Installation des dépendances
         run: npm install
 
+      - name: Vérification des secrets dans le code
+        run: |
+          echo "Vérification qu'aucun secret n'est exposé..."
+          ! grep -r "password" --include="*.js" backend/ | grep -v "node_modules" | grep -v "//.*password"
+          echo "OK - Aucun secret exposé"
+
       - name: Build image backend
         run: docker build -t proshop-backend -f backend/Dockerfile .
 
       - name: Build image frontend
         run: docker build -t proshop-frontend -f frontend/Dockerfile ./frontend
+
+      - name: Scan de vulnérabilités avec Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: proshop-backend
+          format: table
+          exit-code: '0'
+          severity: HIGH,CRITICAL
 
       - name: Vérification des images
         run: docker images

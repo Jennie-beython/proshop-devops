@@ -46,8 +46,41 @@ services:
     networks:
       - proshop-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: proshop-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - proshop-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: proshop-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - proshop-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: proshop-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - proshop-network
+
 volumes:
   mongodb_data:
+  grafana_data:
 
 networks:
   proshop-network:
