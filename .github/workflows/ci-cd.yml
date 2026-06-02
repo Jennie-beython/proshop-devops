@@ -5,7 +5,38 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+name: CI/CD ProShop
 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Installation des dépendances
+        run: npm install
+
+      - name: Build image backend
+        run: docker build -t proshop-backend -f backend/Dockerfile .
+
+      - name: Build image frontend
+        run: docker build -t proshop-frontend -f frontend/Dockerfile ./frontend
+
+      - name: Vérification des conteneurs
+        run: docker images
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
